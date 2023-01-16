@@ -1,4 +1,7 @@
 import 'package:entry_explain/constants/uicolor.dart';
+import 'package:entry_explain/services/openai_api.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 
 class Home extends StatefulWidget {
@@ -10,6 +13,31 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   TextEditingController userMessage = TextEditingController();
+
+  void response(String userQuest) async {
+    APIKey apiKey = APIKey();
+    String apiUrl =
+        "https://api.openai.com/v1/engines/davinci-codex/completions";
+    Map<String, String> headers = {
+      "Content-type": "application/json",
+      "Authorization": "Bearer ${apiKey.getApiKey}"
+    };
+
+    Map<String, dynamic> body = {
+      "prompt": userQuest,
+      "model": "text-davinci-002",
+    };
+
+    var response = await http.post(Uri.parse(apiUrl),
+        headers: headers, body: json.encode(body));
+
+    if (response.statusCode == 200) {
+      var data = json.decode(response.body);
+      print(data["choices"][0]["text"]);
+    } else {
+      print("Erro: ${response.statusCode}");
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -38,6 +66,16 @@ class _HomeState extends State<Home> {
                 ),
               ),
             ),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              response(userMessage.text);
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: buttonsColor,
+              elevation: 10,
+            ),
+            child: const Text('Send'),
           )
         ],
       ),
