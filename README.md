@@ -1,3 +1,3 @@
 # Entry explain 
 
-Its a glimpse of someting bigger that I'm creating.
+Using Openai ChatGPT API to explain things that the user ask.
