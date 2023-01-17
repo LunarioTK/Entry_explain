@@ -1,3 +1,4 @@
+import 'package:entry_explain/constants/fonts.dart';
 import 'package:entry_explain/constants/uicolor.dart';
 import 'package:entry_explain/services/openai_api.dart';
 import 'dart:convert';
@@ -16,8 +17,7 @@ class _HomeState extends State<Home> {
 
   void response(String userQuest) async {
     APIKey apiKey = APIKey();
-    String apiUrl =
-        "https://api.openai.com/v1/engines/davinci-codex/completions";
+    String apiUrl = "https://api.openai.com/v1/completions";
     Map<String, String> headers = {
       "Content-type": "application/json",
       "Authorization": "Bearer ${apiKey.getApiKey}"
@@ -49,17 +49,21 @@ class _HomeState extends State<Home> {
             padding: const EdgeInsets.fromLTRB(15, 50, 15, 0),
             child: TextField(
               controller: userMessage,
-              style: const TextStyle(color: Colors.white),
-              decoration: const InputDecoration(
+              style: TextStyle(
+                color: Colors.white,
+                fontFamily: mainFont,
+              ),
+              decoration: InputDecoration(
                 hintText: 'Insert question',
-                prefixIcon: Icon(
+                prefixIcon: const Icon(
                   Icons.person,
                   color: Colors.white,
                 ),
                 hintStyle: TextStyle(
                   color: Colors.white,
+                  fontFamily: mainFont,
                 ),
-                border: OutlineInputBorder(
+                border: const OutlineInputBorder(
                   borderSide: BorderSide(
                     color: Colors.white,
                   ),
@@ -67,6 +71,7 @@ class _HomeState extends State<Home> {
               ),
             ),
           ),
+          const SizedBox(height: 10),
           ElevatedButton(
             onPressed: () {
               response(userMessage.text);
@@ -75,7 +80,12 @@ class _HomeState extends State<Home> {
               backgroundColor: buttonsColor,
               elevation: 10,
             ),
-            child: const Text('Send'),
+            child: Text(
+              'Send',
+              style: TextStyle(
+                fontFamily: mainFont,
+              ),
+            ),
           )
         ],
       ),
