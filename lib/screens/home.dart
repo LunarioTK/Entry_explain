@@ -14,8 +14,10 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   TextEditingController userMessage = TextEditingController();
+  FocusNode myfocus = FocusNode();
+  //bool isClicked = false;
 
-  void response(String userQuest) async {
+  void getResponse(String userQuest) async {
     APIKey apiKey = APIKey();
     String apiUrl = "https://api.openai.com/v1/completions";
     Map<String, String> headers = {
@@ -26,6 +28,7 @@ class _HomeState extends State<Home> {
     Map<String, dynamic> body = {
       "prompt": userQuest,
       "model": "text-davinci-002",
+      "max_tokens": 100,
     };
 
     var response = await http.post(Uri.parse(apiUrl),
@@ -49,6 +52,7 @@ class _HomeState extends State<Home> {
             padding: const EdgeInsets.fromLTRB(15, 50, 15, 0),
             child: TextField(
               controller: userMessage,
+              focusNode: myfocus,
               style: TextStyle(
                 color: Colors.white,
                 fontFamily: mainFont,
@@ -74,7 +78,8 @@ class _HomeState extends State<Home> {
           const SizedBox(height: 10),
           ElevatedButton(
             onPressed: () {
-              response(userMessage.text);
+              getResponse(userMessage.text);
+              myfocus.unfocus();
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: buttonsColor,
