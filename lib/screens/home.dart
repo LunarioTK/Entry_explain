@@ -55,16 +55,16 @@ class _HomeState extends State<Home> {
 
       Map<String, dynamic> body = {
         "prompt":
-            'Explica-me este texto o mais resumido possivel "$userQuest", em português',
-        "model": "text-babbage-001",
-        "max_tokens": 100,
+            'Explica-me este texto por topicos e o mais resumido possivel "$userQuest", em português',
+        "model": "text-davinci-002",
+        "max_tokens": 1200,
       };
 
       var response = await http.post(Uri.parse(apiUrl),
           headers: headers, body: json.encode(body));
 
       if (response.statusCode == 200) {
-        var data = json.decode(response.body);
+        var data = json.decode(utf8.decode(response.bodyBytes));
         setState(() {
           chatResponse = (data["choices"][0]["text"]);
           showResult(chatResponse);
@@ -82,15 +82,15 @@ class _HomeState extends State<Home> {
     Future<String> generatePDF() async {
       //Load an existing PDF document.
       PdfDocument document = PdfDocument(
-          inputBytes: await _readDocumentData('Carta de Apresentação app.pdf'));
+          inputBytes: await _readDocumentData('Atomic Habits James Clear.pdf'));
 
       //Create a new instance of the PdfTextExtractor.
       PdfTextExtractor extractor = PdfTextExtractor(document);
 
       //Extract all the text from the document.
-      String text = extractor.extractText();
+      String text = extractor.extractText(startPageIndex: 21);
 
-      getResponse(text);
+      showResult(text);
 
       return text;
     }
