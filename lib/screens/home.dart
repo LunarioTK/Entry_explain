@@ -28,6 +28,23 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
+    void showResult(String? text) {
+      showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text('Explanation'),
+              content: Scrollbar(
+                child: SingleChildScrollView(
+                  physics: const BouncingScrollPhysics(
+                      parent: AlwaysScrollableScrollPhysics()),
+                  child: Text(text!),
+                ),
+              ),
+            );
+          });
+    }
+
     void getResponse(String userQuest) async {
       APIKey apiKey = APIKey();
       String apiUrl = "https://api.openai.com/v1/completions";
@@ -39,7 +56,7 @@ class _HomeState extends State<Home> {
       Map<String, dynamic> body = {
         "prompt":
             'Explica-me este texto o mais resumido possivel "$userQuest", em português',
-        "model": "text-davinci-002",
+        "model": "text-babbage-001",
         "max_tokens": 100,
       };
 
@@ -50,11 +67,13 @@ class _HomeState extends State<Home> {
         var data = json.decode(response.body);
         setState(() {
           chatResponse = (data["choices"][0]["text"]);
+          showResult(chatResponse);
           print((data["choices"][0]["text"]));
         });
       } else {
         setState(() {
           chatResponse = ("Erro: ${response.statusCode}");
+          showResult(chatResponse);
           print(("Erro: ${response.statusCode}"));
         });
       }
@@ -63,8 +82,7 @@ class _HomeState extends State<Home> {
     Future<String> generatePDF() async {
       //Load an existing PDF document.
       PdfDocument document = PdfDocument(
-          inputBytes:
-              await _readDocumentData('Carta de Apresentação Team.It.pdf'));
+          inputBytes: await _readDocumentData('Carta de Apresentação app.pdf'));
 
       //Create a new instance of the PdfTextExtractor.
       PdfTextExtractor extractor = PdfTextExtractor(document);
@@ -81,50 +99,30 @@ class _HomeState extends State<Home> {
       backgroundColor: uiColor,
       body: Column(
         children: [
+          const SizedBox(height: 50),
+
           // Show Chat message
-          Padding(
-            padding: const EdgeInsets.fromLTRB(20, 50, 20, 10),
-            child: Container(
-              decoration: BoxDecoration(
-                  color: containerColor,
-                  borderRadius: const BorderRadius.only(
-                    bottomLeft: Radius.circular(10),
-                    bottomRight: Radius.circular(10),
-                    topRight: Radius.circular(10),
-                  )),
-              child: ListTile(
-                shape: const StadiumBorder(),
-                title: Text(
-                  chatResponse == null
-                      ? 'What do you want explained'
-                      : '$chatResponse',
-                  style: const TextStyle(
-                    color: Colors.white,
+          //chatBubble(chatResponse),
+          //const SizedBox(height: 10),
+
+          Align(
+            alignment: Alignment.topRight,
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: FloatingActionButton(
+                elevation: 10,
+                backgroundColor: buttonsColor,
+                onPressed: () {
+                  setState(() {
+                    generatePDF();
+                  });
+                },
+                child: Text(
+                  'EE',
+                  style: TextStyle(
+                    fontFamily: mainFont,
                   ),
                 ),
-                leading: CircleAvatar(
-                  child: Image.asset('assets/chatgpt.png'),
-                ),
-              ),
-            ),
-          ),
-
-          const SizedBox(height: 10),
-
-          ElevatedButton(
-            onPressed: () {
-              setState(() {
-                generatePDF();
-              });
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: buttonsColor,
-              elevation: 10,
-            ),
-            child: Text(
-              'Send',
-              style: TextStyle(
-                fontFamily: mainFont,
               ),
             ),
           ),
@@ -132,4 +130,33 @@ class _HomeState extends State<Home> {
       ),
     );
   }
+}
+
+Widget chatBubble(String? chatResponseOnBubble) {
+  return Row(
+    children: [
+      CircleAvatar(
+        child: Image.asset('assets/chatgpt.png'),
+      ),
+      Expanded(
+        child: Container(
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: containerColor,
+            borderRadius: const BorderRadius.only(
+              bottomLeft: Radius.circular(10),
+              bottomRight: Radius.circular(10),
+              topRight: Radius.circular(10),
+            ),
+          ),
+          child: Text(
+            chatResponseOnBubble ?? 'What do you want explained',
+            style: const TextStyle(
+              color: Colors.white,
+            ),
+          ),
+        ),
+      )
+    ],
+  );
 }
